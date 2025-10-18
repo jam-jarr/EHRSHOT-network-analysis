@@ -6,7 +6,13 @@ Either install based on your environment based on
 and
 [PyTorch](https://pytorch.org/get-started/locally/)
 
+then use UV to sync other dependencies from `pyproject.toml`
+
+```shell
+uv sync --inexact
+```
+
 You can also simply use pip for a cpu & linux installation (compatible with WSL)
-```bash
+```shell
 pip install -r requirements.txt
 ```
