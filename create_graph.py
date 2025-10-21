@@ -10,24 +10,34 @@ conn = sqlite3.connect(
 )  # Connect (and create if it doesn't exist) database
 curr = conn.cursor()  # Object to run queries
 
+tiny = "project_tiny_sampled_data"
+small = "project_sampled_data"
+full = "project_full_sampled_data"
+
+table = full
+
 medicationdf = pd.read_sql_query(
-    """
-    SELECT DISTINCT drug_concept_id, drug_name FROM project_tiny_sampled_data
+    f"""
+    SELECT DISTINCT drug_concept_id, drug_name FROM {table}
     ORDER BY drug_concept_id
     """,
     conn,
 )
 
 df = pd.read_sql_query(
-    """
-SELECT *, COUNT(drug_concept_id) FROM project_tiny_sampled_data
-GROUP BY drug_concept_id, person_id
-ORDER BY person_id
-""",
+    f"""
+    SELECT *, COUNT(drug_concept_id) FROM {table}
+    WHERE drug_concept_id != 0
+    GROUP BY drug_concept_id, person_id
+    ORDER BY person_id
+    """,
     conn,
 )
 
+
 conn.close()
+
+# Generate adjacency_list
 
 a = 0
 b = 1
