@@ -1,6 +1,4 @@
 import sqlite3
-import pandas as pd
-from pathlib import Path
 
 conn = sqlite3.connect(
     "EHR2000.db"
