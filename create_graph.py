@@ -37,7 +37,24 @@ df = pd.read_sql_query(
 
 conn.close()
 
-# Generate adjacency_list
+# Notes:
+# Goal:
+#   create a graph with
+#   nodes: medications
+#   edges: co-occur together in a patient (weighted)
+
+# process:
+#   --Generate nodes--
+#   query for a unique list of medications
+#   for each medication:
+#     create a node
+
+#   --Generate edges--
+#   scan list of patients, ordered by patient id and grouped by drug_concept_id
+#   any medication that occurs together in a single patient is connected
+
+
+# Generate adjacency_list (edges)
 
 a = 0
 b = 1
@@ -68,6 +85,8 @@ while b < len(df):
 #   medication1 : {medication4: 1, medication2: 5, medication3: 2}
 # }
 
+# Create edge tensors for PyG
+
 edge_list = [[], []]
 edge_weights = []
 
@@ -75,7 +94,6 @@ for edge, connections in adjacency_list.items():
     for connection, weight in connections.items():
         edge_list[0].append(edge)
         edge_list[1].append(connection)
-        # edge_list.append([edge, connection])
         edge_weights.append([weight])
 
 
@@ -97,11 +115,8 @@ def pyg_data_to_edges_csv(data, filename="edges.csv"):
     # Add edge attributes (e.g., weights) if present
     if hasattr(data, "edge_attr") and data.edge_attr is not None:
         edge_attr = data.edge_attr.cpu().numpy()
-        if edge_attr.ndim == 1:
-            edge_data["weight"] = edge_attr
-        elif edge_attr.ndim == 2:
-            for i in range(edge_attr.shape[1]):
-                edge_data[f"attr_{i}"] = edge_attr[:, i]
+        for i in range(edge_attr.shape[1]):
+            edge_data["weight"] = edge_attr[:, i]
 
     df = pd.DataFrame(edge_data)
     df.to_csv(filename, index=False)
@@ -118,7 +133,7 @@ for i in range(0, len(medicationdf)):
     drug_name = med["drug_name"]
     node_drug_name.append(drug_name)
 
-node_data = {"id": nodes, "name": node_drug_name}
+node_data = {"id": nodes, "Label": node_drug_name}
 
 df = pd.DataFrame(node_data)
 
@@ -127,18 +142,3 @@ df.to_csv("nodes.csv", index=False)
 data = Data(edge_index=edge_index, edge_attr=edge_attr)
 
 pyg_data_to_edges_csv(data)
-
-
-# goal:
-# create a graph with
-# nodes: medications
-# edges: co-occur together in a patient (weighted)
-#
-# process:
-# query for a unique list of medications
-# for each medication:
-#   create a node
-#
-# scan list of patients, ordered by patient id and grouped by drug_concept_id
-# any medication that occurs together in a single patient is connected
-#
