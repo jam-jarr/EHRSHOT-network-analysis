@@ -26,7 +26,7 @@ medicationdf = pd.read_sql_query(
 
 df = pd.read_sql_query(
     f"""
-    SELECT *, COUNT(drug_concept_id) FROM {table}
+    SELECT person_id, drug_concept_id, drug_name, COUNT(drug_concept_id) FROM {table}
     WHERE drug_concept_id != 0
     GROUP BY drug_concept_id, person_id
     ORDER BY person_id
