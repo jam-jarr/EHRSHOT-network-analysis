@@ -11,3 +11,5 @@ wheels/
 
 # Ignore sensative data
 sensative/
+modgroups
+clean_rows.py
