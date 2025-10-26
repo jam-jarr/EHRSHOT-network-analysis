@@ -23,9 +23,21 @@ curr.execute(
 
 curr.execute(
     """
+    CREATE UNIQUE INDEX concept_ancestor_descendant_concept_id_IDX ON concept_ancestor (descendant_concept_id,ancestor_concept_id)
+    """
+)
+
+curr.execute(
+    """
     CREATE INDEX "idx_drug_concept_id" ON "sampled_drug_exposure" (
         "drug_concept_id"
     );
+    """
+)
+
+curr.execute(
+    """
+    CREATE UNIQUE INDEX concept_concept_id_IDX ON concept (concept_id)
     """
 )
 
@@ -43,6 +55,12 @@ curr.execute(
     CREATE INDEX "idx_drug_type_concept_id" ON "sampled_drug_exposure" (
         "drug_type_concept_id"
     );
+    """
+)
+
+curr.execute(
+    """
+    CREATE INDEX sampled_drug_exposure_person_id_IDX ON sampled_drug_exposure (person_id,drug_exposure_id)
     """
 )
 
@@ -70,5 +88,9 @@ curr.execute(
     )
     """
 )
+
+curr.execute("ANALYZE")
+
+conn.commit()
 
 conn.close()
